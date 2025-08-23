@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ccet4r06np2bs"
-path="res://.godot/imported/6.png-7d4735862c7056009d42b210215220fe.ctex"
+uid="uid://cdmv3gueq7x3t"
+path="res://.godot/imported/bridgeback.png-02b3b9906ab66fabb0e8f00690c8f326.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://tile sets/6.png"
-dest_files=["res://.godot/imported/6.png-7d4735862c7056009d42b210215220fe.ctex"]
+source_file="res://tile sets/bridgeback.png"
+dest_files=["res://.godot/imported/bridgeback.png-02b3b9906ab66fabb0e8f00690c8f326.ctex"]
 
 [params]
 
