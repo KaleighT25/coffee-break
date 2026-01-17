@@ -20,7 +20,7 @@ public partial class Player : CharacterBody2D
 	
 	private void handleInput()
 	{
-		currentVelocity = Input.GetVector("ui_left", "ui_right", "ui_up", "ui_down");
+		currentVelocity = Input.GetVector("Left", "Right", "Up", "Down");
 		currentVelocity *= speed;
 	}
 }

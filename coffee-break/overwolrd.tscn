@@ -1,39 +1,15 @@
-[gd_scene load_steps=5 format=3 uid="uid://cv0k4punj61xg"]
+[gd_scene load_steps=3 format=3 uid="uid://cv0k4punj61xg"]
 
-[ext_resource type="Texture2D" uid="uid://b8lilj0uhvykt" path="res://tile sets/map.png" id="1_g3h8s"]
-[ext_resource type="Texture2D" uid="uid://c1aqjx8wkpof5" path="res://tile sets/mapfull.png" id="1_g84yk"]
+[ext_resource type="Texture2D" uid="uid://c1aqjx8wkpof5" path="res://art/mapfull.png" id="1_g84yk"]
 [ext_resource type="PackedScene" uid="uid://bhri7u116hdt7" path="res://player.tscn" id="6_daers"]
-[ext_resource type="Texture2D" uid="uid://u5l2ymerusud" path="res://mountian concept1.png" id="12_2srg8"]
 
 [node name="Node2D" type="Node2D"]
 
 [node name="Mapfull" type="Sprite2D" parent="."]
-visible = false
 position = Vector2(66, -3300)
 scale = Vector2(14.1149, 14.1149)
 texture = ExtResource("1_g84yk")
 
-[node name="Map" type="Sprite2D" parent="."]
-visible = false
-position = Vector2(336, -3345)
-scale = Vector2(14.1258, 14.1258)
-texture = ExtResource("1_g3h8s")
-
 [node name="CharacterBody2D" parent="." instance=ExtResource("6_daers")]
 position = Vector2(472, 379)
 speed = 305
-
-[node name="RemoteTransform2D" type="RemoteTransform2D" parent="CharacterBody2D"]
-remote_path = NodePath("../../Camera2D")
-
-[node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(472, 379)
-process_callback = 0
-position_smoothing_enabled = true
-drag_horizontal_enabled = true
-drag_vertical_enabled = true
-
-[node name="MountianConcept1" type="Sprite2D" parent="."]
-position = Vector2(2820, -3553)
-scale = Vector2(2.26823, 2.26823)
-texture = ExtResource("12_2srg8")
