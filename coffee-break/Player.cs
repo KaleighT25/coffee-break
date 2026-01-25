@@ -26,8 +26,6 @@ public partial class Player : CharacterBody2D
 	private AnimationPlayer animationPlayer;
 	private bool animationLocked = false;
 
-	private Vector2 direction = new Vector2();
-
 	private enum AnimState
 	{
 		IdleLeft, IdleRight, IdleUp, IdleDown, 
