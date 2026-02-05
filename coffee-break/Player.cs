@@ -30,6 +30,9 @@ public partial class Player : CharacterBody2D
 
 	private Hitbox swordHitBox;
 
+	private Node2D lockedTarget = null;
+	[Export] public float lockRadius = 200f;
+
 	[Export] public float knockbackForce = 500f;
 	[Export] public float knockbackFriction = 1200f;
 
@@ -62,32 +65,51 @@ public partial class Player : CharacterBody2D
 		swordHitBox.OwnerNode = this;
 	}
 	public override void _PhysicsProcess(double delta)
-	{
-		base._PhysicsProcess(delta);
-		
-		handleInput();
+{
+    base._PhysicsProcess(delta);
 
-		Vector2 finalVelocity = currentVelocity;
+    handleInput();
 
-		if (isKnockedBack)
-		{
-			finalVelocity = knockbackVelocity;
+    if (lockedTarget != null)
+    {
+        if (!IsInstanceValid(lockedTarget))
+        {
+            lockedTarget = null;
+        }
+        else
+        {
+            FaceLockedTarget();
+        }
+    }
 
-			knockbackVelocity = knockbackVelocity.MoveToward(Vector2.Zero, knockbackFriction * (float)delta);
+    Vector2 finalVelocity = currentVelocity;
 
-			if (knockbackVelocity.Length() < 5f)
-			{
-				knockbackVelocity = Vector2.Zero;
-				isKnockedBack = false;
-			}
-		}
-		
-		Velocity = finalVelocity;
-		MoveAndSlide();
-	}
+    if (isKnockedBack)
+    {
+        finalVelocity = knockbackVelocity;
+        knockbackVelocity = knockbackVelocity.MoveToward(Vector2.Zero, knockbackFriction * (float)delta);
+        if (knockbackVelocity.Length() < 5f)
+        {
+            knockbackVelocity = Vector2.Zero;
+            isKnockedBack = false;
+        }
+    }
+
+ 
+    Velocity = finalVelocity;
+    MoveAndSlide();
+
+    GlobalPosition = GlobalPosition.Round();
+}
+
 	
 	private void handleInput()
 	{
+		if (Input.IsActionJustPressed("TargetLock"))
+		{
+			ToggleTargetLock();
+		}
+
 		if(!animationLocked)
 		{
 			currentVelocity = Input.GetVector("Left", "Right", "Up", "Down");
@@ -100,22 +122,22 @@ public partial class Player : CharacterBody2D
 
 	private void WalkingAnimation()
 	{
-		if (Input.IsActionPressed("Left"))
+		if (Input.IsActionPressed("Left") && lockedTarget == null)
 		{
 			PlayAnimation((int)AnimState.WalkLeft, false);
 			facingDirection = FacingDirection.Left;
 		} 
-		else if (Input.IsActionPressed("Right"))
+		else if (Input.IsActionPressed("Right") && lockedTarget == null)
 		{
 			PlayAnimation((int)AnimState.WalkRight, false);
 			facingDirection = FacingDirection.Right;
 		}
-		else if (Input.IsActionPressed("Up"))
+		else if (Input.IsActionPressed("Up") && lockedTarget == null)
 		{
 			PlayAnimation((int)AnimState.WalkUp, false);
 			facingDirection = FacingDirection.Up;
 		}
-		else if (Input.IsActionPressed("Down"))
+		else if (Input.IsActionPressed("Down") && lockedTarget == null)
 		{
 			PlayAnimation((int)AnimState.WalkDown, false);
 			facingDirection = FacingDirection.Down;
@@ -176,7 +198,6 @@ public partial class Player : CharacterBody2D
 		swordHitBox.Monitoring = false;
 	}
 
-
 	private void PlayAnimation(int stateInt, bool lockAnim)
 	{
 		AnimState state = (AnimState)stateInt;
@@ -204,7 +225,9 @@ public partial class Player : CharacterBody2D
 
 		if (!animationLocked || lockAnim)
 		{
-			animationPlayer.Play(animName);
+			if (animationPlayer.CurrentAnimation != animName)
+				animationPlayer.Play(animName);
+
 			animationLocked = lockAnim;
 		}
 	}
@@ -255,4 +278,68 @@ public partial class Player : CharacterBody2D
 			}
 	}
 
+	private Node2D FindClosestEnemy()
+	{
+		var enemies = GetTree().GetNodesInGroup("enemies");
+
+		Node2D closest = null;
+		float closestDist = lockRadius;
+
+		foreach (Node node in enemies)
+		{
+			if (node is Node2D enemy)
+			{
+				float dist = GlobalPosition.DistanceTo(enemy.GlobalPosition);
+
+				if (dist < closestDist)
+				{
+					closestDist = dist;
+					closest = enemy;
+				}
+			}
+		}
+
+		return closest;
+	}
+
+	private void ToggleTargetLock()
+	{
+		GD.Print("target lock pressed");
+
+		if (lockedTarget == null)
+		{
+			lockedTarget = FindClosestEnemy();
+			GD.Print("Locked: ", lockedTarget);
+		}
+		else
+		{
+			GD.Print("Unlocked");
+			lockedTarget = null;
+		}
+	}
+
+	private void FaceLockedTarget()
+	{
+		if (lockedTarget == null) return;
+		if(!IsInstanceValid(lockedTarget))
+		{
+			lockedTarget = null;
+			return;
+		}
+
+		Vector2 dir = (lockedTarget.GlobalPosition - GlobalPosition);
+
+		if (Math.Abs(dir.X) > Math.Abs(dir.Y))
+		{
+			facingDirection = dir.X > 0
+				? FacingDirection.Right
+				: FacingDirection.Left;
+		}
+		else
+		{
+			facingDirection = dir.Y > 0
+				? FacingDirection.Down
+				: FacingDirection.Up;
+		}
+	}
 }
