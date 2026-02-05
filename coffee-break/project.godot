@@ -12,7 +12,6 @@ config_version=5
 
 config/name="coffee break"
 config/features=PackedStringArray("4.3", "C#", "Forward Plus")
-config/icon="res://icon.svg"
 
 [dotnet]
 

@@ -4,8 +4,10 @@ using System.ComponentModel;
 using System.IO.Pipes;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.ConstrainedExecution;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks.Dataflow;
+using System.Xml;
 
 public partial class Player : CharacterBody2D
 {
@@ -26,11 +28,20 @@ public partial class Player : CharacterBody2D
 	private AnimationPlayer animationPlayer;
 	private bool animationLocked = false;
 
+	private Hitbox swordHitBox;
+
+	[Export] public float knockbackForce = 500f;
+	[Export] public float knockbackFriction = 1200f;
+
+	private Vector2 knockbackVelocity = Vector2.Zero;
+	private bool isKnockedBack = false;
+
 	private enum AnimState
 	{
 		IdleLeft, IdleRight, IdleUp, IdleDown, 
 		WalkLeft, WalkRight, WalkUp, WalkDown, 
-		SwordSwingLeft, SwordSwingRight, SwordSwingUp, SwordSwingDown
+		SwordSwingLeft, SwordSwingRight, SwordSwingUp, SwordSwingDown,
+		HitLeft, HitRight, HitUp, HitDown
 	}
 
 	private enum FacingDirection{Left, Right, Up, Down}
@@ -42,14 +53,36 @@ public partial class Player : CharacterBody2D
 		animationPlayer = GetNode<AnimationPlayer>("AnimationPlayer");
 	
 		animationPlayer.AnimationFinished += OnAnimationFinshed;
+
+		currentHealth = maxHealth;
+		currentMagic = maxMagic;
+		currentAwake = maxAwake;  
+
+		swordHitBox = GetNode<Hitbox>("swordHitBox");
+		swordHitBox.OwnerNode = this;
 	}
 	public override void _PhysicsProcess(double delta)
 	{
 		base._PhysicsProcess(delta);
 		
 		handleInput();
+
+		Vector2 finalVelocity = currentVelocity;
+
+		if (isKnockedBack)
+		{
+			finalVelocity = knockbackVelocity;
+
+			knockbackVelocity = knockbackVelocity.MoveToward(Vector2.Zero, knockbackFriction * (float)delta);
+
+			if (knockbackVelocity.Length() < 5f)
+			{
+				knockbackVelocity = Vector2.Zero;
+				isKnockedBack = false;
+			}
+		}
 		
-		Velocity = currentVelocity;
+		Velocity = finalVelocity;
 		MoveAndSlide();
 	}
 	
@@ -133,6 +166,17 @@ public partial class Player : CharacterBody2D
 		}
 	}
 
+	public void SwordHitboxOn()
+	{
+		swordHitBox.Monitoring = true;
+	}
+
+	public void SwordHitboxOff()
+	{
+		swordHitBox.Monitoring = false;
+	}
+
+
 	private void PlayAnimation(int stateInt, bool lockAnim)
 	{
 		AnimState state = (AnimState)stateInt;
@@ -151,6 +195,10 @@ public partial class Player : CharacterBody2D
 			AnimState.SwordSwingRight => "swordSwingRight",
 			AnimState.SwordSwingUp => "swordSwingUp",
 			AnimState.SwordSwingDown => "swordSwingDown",
+			AnimState.HitLeft => "hitLeft",
+			AnimState.HitRight => "hitRight",
+			AnimState.HitUp => "hitUp",
+			AnimState.HitDown => "hitDown",
 			_ => "idleDown"
 		};
 
@@ -163,9 +211,48 @@ public partial class Player : CharacterBody2D
 
 	private void OnAnimationFinshed(StringName animName)
 	{
-		if(animName.ToString().StartsWith("swordSwing"))
+		if(animName.ToString().StartsWith("swordSwing") || animName.ToString().StartsWith("hit"))
 		{
 			animationLocked = false;
 		}
 	}
+
+	public void TakeDamage(int amount, Vector2 enemyPosition)
+    {
+    	currentHealth -= amount;
+
+		ApplyKnockback(enemyPosition);
+
+        GD.Print("Player health: " + currentHealth);
+
+        if (currentHealth <= 0)
+        {
+            GD.Print("Player dead");
+        }
+    }
+
+	public void ApplyKnockback(Vector2 fromPosition)
+	{
+		Vector2 direction = (GlobalPosition - fromPosition).Normalized();
+		knockbackVelocity = direction * knockbackForce;
+		isKnockedBack = true;
+
+		if(facingDirection == FacingDirection.Left)
+			{
+				PlayAnimation((int)AnimState.HitLeft, true);
+			}
+			else if(facingDirection == FacingDirection.Right)
+			{
+				PlayAnimation((int)AnimState.HitRight, true);
+			}
+			else if(facingDirection == FacingDirection.Up)
+			{
+				PlayAnimation((int)AnimState.HitUp, true);
+			}
+			else if(facingDirection == FacingDirection.Down)
+			{
+				PlayAnimation((int)AnimState.HitDown, true);
+			}
+	}
+
 }
