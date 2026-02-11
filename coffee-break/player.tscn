@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://bhri7u116hdt7"]
+[gd_scene load_steps=29 format=3 uid="uid://bhri7u116hdt7"]
 
 [ext_resource type="Script" path="res://Player.cs" id="1_av1gv"]
 [ext_resource type="Texture2D" uid="uid://dbi76pa2yd4wk" path="res://art/standins.png" id="2_armkb"]
@@ -57,6 +57,30 @@ tracks/3/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Vector2(0, -4.54747e-13)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("playerSprite:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("playerSprite:scale")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(3.33333, 2.875)]
 }
 
 [sub_resource type="Animation" id="Animation_yh306"]
@@ -525,6 +549,94 @@ tracks/0/keys = {
 "values": [4]
 }
 
+[sub_resource type="Animation" id="Animation_bqkwa"]
+resource_name = "rollLeft"
+length = 0.225
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("playerSprite:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.0333333, 0.0666667, 0.133333, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 1.24856, 3.12776, 4.1439, 6.28119]
+}
+
+[sub_resource type="Animation" id="Animation_f66qr"]
+resource_name = "rollRight"
+length = 0.225
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("playerSprite:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.0333333, 0.0666667, 0.133333, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.0, -1.58196, -3.18817, -4.74507, -6.26644]
+}
+
+[sub_resource type="Animation" id="Animation_fbsbx"]
+resource_name = "rollUp"
+length = 0.225
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("playerSprite:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(0, -4.54747e-13), Vector2(0, -12), Vector2(0, -4.54747e-13)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("playerSprite:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(3.33333, 2.875), Vector2(3.33333, 1.155), Vector2(3.33333, 2.875)]
+}
+
+[sub_resource type="Animation" id="Animation_1ees3"]
+resource_name = "rollDown"
+length = 0.225
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("playerSprite:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(0, -4.54747e-13), Vector2(0, 16), Vector2(0, -4.54747e-13)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("playerSprite:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(3.33333, 2.875), Vector2(3.33333, 1.115), Vector2(3.33333, 2.875)]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_h6wyu"]
 _data = {
 "RESET": SubResource("Animation_tih2k"),
@@ -536,6 +648,10 @@ _data = {
 "idleLeft": SubResource("Animation_r8ler"),
 "idleRight": SubResource("Animation_vv0x4"),
 "idleUp": SubResource("Animation_pko5b"),
+"rollDown": SubResource("Animation_1ees3"),
+"rollLeft": SubResource("Animation_f66qr"),
+"rollRight": SubResource("Animation_bqkwa"),
+"rollUp": SubResource("Animation_fbsbx"),
 "swordSwingDown": SubResource("Animation_ywsb4"),
 "swordSwingLeft": SubResource("Animation_lh1ul"),
 "swordSwingRight": SubResource("Animation_oukpr"),
