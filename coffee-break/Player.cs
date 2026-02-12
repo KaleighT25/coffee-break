@@ -298,7 +298,7 @@ public partial class Player : CharacterBody2D
 
 			float side = currentVelocity.Normalized().Dot(tangent);
 
-			playerSprite.Position = new Vector2(side * 2f, 0); // lean 2 pixels
+			playerSprite.Position = new Vector2(side * 2f, 0); 
 		}
 		else
 		{

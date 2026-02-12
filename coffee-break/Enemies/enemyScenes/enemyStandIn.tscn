@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://bvbew1yldw047"]
+[gd_scene load_steps=100 format=3 uid="uid://bvbew1yldw047"]
 
 [ext_resource type="Texture2D" uid="uid://dbi76pa2yd4wk" path="res://art/standins.png" id="1_76tie"]
 [ext_resource type="Script" path="res://Enemies/enemyScripts/EnemyStandIn.cs" id="1_b8bwd"]
@@ -13,6 +13,378 @@ size = Vector2(10, 40)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_qpe3a"]
 size = Vector2(10, 40)
 
+[sub_resource type="Animation" id="Animation_be1go"]
+resource_name = "p1IdleLeft"
+
+[sub_resource type="Animation" id="Animation_cl2m3"]
+resource_name = "p1IdleRight"
+
+[sub_resource type="Animation" id="Animation_stqsk"]
+resource_name = "p1IdleUp"
+
+[sub_resource type="Animation" id="Animation_iffok"]
+resource_name = "p1IdleDown"
+
+[sub_resource type="Animation" id="Animation_842d1"]
+resource_name = "p1WalkLeft"
+
+[sub_resource type="Animation" id="Animation_br62f"]
+resource_name = "p1WalkRight"
+
+[sub_resource type="Animation" id="Animation_5tbp6"]
+resource_name = "p1WalkUp"
+
+[sub_resource type="Animation" id="Animation_11v77"]
+resource_name = "p1WalkDown"
+
+[sub_resource type="Animation" id="Animation_2tjc0"]
+resource_name = "p1StrafeLeft"
+
+[sub_resource type="Animation" id="Animation_ksfuy"]
+resource_name = "p1StrafeRight"
+
+[sub_resource type="Animation" id="Animation_fapi0"]
+resource_name = "p1StrafeUp"
+
+[sub_resource type="Animation" id="Animation_yb01e"]
+resource_name = "p1StrafeDown"
+
+[sub_resource type="Animation" id="Animation_cnsnr"]
+resource_name = "p1SwordSwingLeft"
+
+[sub_resource type="Animation" id="Animation_2lil1"]
+resource_name = "p1SwordSwingRight"
+
+[sub_resource type="Animation" id="Animation_ymfwt"]
+resource_name = "p1SwordSwingUp"
+
+[sub_resource type="Animation" id="Animation_dclhf"]
+resource_name = "p1SwordSwingDown"
+
+[sub_resource type="Animation" id="Animation_ww8hv"]
+resource_name = "p1SwordResetLeft"
+
+[sub_resource type="Animation" id="Animation_ec424"]
+resource_name = "p1SwordResetRight"
+
+[sub_resource type="Animation" id="Animation_p1r1p"]
+resource_name = "p1SwordResetUp"
+
+[sub_resource type="Animation" id="Animation_q15vl"]
+resource_name = "p1SwordResetDown"
+
+[sub_resource type="Animation" id="Animation_r5w8a"]
+resource_name = "p1BackSwingLeft"
+
+[sub_resource type="Animation" id="Animation_ngvh5"]
+resource_name = "p1BackSwingRight"
+
+[sub_resource type="Animation" id="Animation_6271g"]
+resource_name = "p1BackSwingUp"
+
+[sub_resource type="Animation" id="Animation_aq7ay"]
+resource_name = "p1BackSwingDown"
+
+[sub_resource type="Animation" id="Animation_cgdyp"]
+resource_name = "p1HitLeft"
+
+[sub_resource type="Animation" id="Animation_onpkl"]
+resource_name = "p1HitRight"
+
+[sub_resource type="Animation" id="Animation_farhc"]
+resource_name = "p1HitUp"
+
+[sub_resource type="Animation" id="Animation_c03mf"]
+resource_name = "p1HitDown"
+
+[sub_resource type="Animation" id="Animation_rwo0w"]
+resource_name = "p1StaggerLeft"
+
+[sub_resource type="Animation" id="Animation_1yh8o"]
+resource_name = "p1StaggerRight"
+
+[sub_resource type="Animation" id="Animation_0b8it"]
+resource_name = "p1StaggerUp"
+
+[sub_resource type="Animation" id="Animation_nkyjv"]
+resource_name = "p1StaggerDown"
+
+[sub_resource type="Animation" id="Animation_8u1ly"]
+resource_name = "p1ShieldLeft"
+
+[sub_resource type="Animation" id="Animation_jkene"]
+resource_name = "p1ShieldRight"
+
+[sub_resource type="Animation" id="Animation_xab10"]
+resource_name = "p1ShieldUp"
+
+[sub_resource type="Animation" id="Animation_df6gt"]
+resource_name = "p1ShieldDown"
+
+[sub_resource type="Animation" id="Animation_f70uf"]
+resource_name = "p1ThurstLeft"
+
+[sub_resource type="Animation" id="Animation_eo6jl"]
+resource_name = "p1ThrustUp"
+
+[sub_resource type="Animation" id="Animation_vjjqp"]
+resource_name = "p1ThrustDown"
+
+[sub_resource type="Animation" id="Animation_5mvwi"]
+resource_name = "p1ThrustRight"
+
+[sub_resource type="Animation" id="Animation_omocp"]
+resource_name = "p2IdleLeft"
+
+[sub_resource type="Animation" id="Animation_6a3g3"]
+resource_name = "p2IdleRight"
+
+[sub_resource type="Animation" id="Animation_1ecao"]
+resource_name = "p2IdleUp"
+
+[sub_resource type="Animation" id="Animation_spw86"]
+resource_name = "p2IdleDown"
+
+[sub_resource type="Animation" id="Animation_ssl3s"]
+resource_name = "p2WalkLeft"
+
+[sub_resource type="Animation" id="Animation_h25i5"]
+resource_name = "p2WalkRight"
+
+[sub_resource type="Animation" id="Animation_4q0yh"]
+resource_name = "p2WalkUp"
+
+[sub_resource type="Animation" id="Animation_lov7y"]
+resource_name = "p2WalkDown"
+
+[sub_resource type="Animation" id="Animation_8xq6l"]
+resource_name = "p2StrafeLeft"
+
+[sub_resource type="Animation" id="Animation_x0pnr"]
+resource_name = "p2StrafeRight"
+
+[sub_resource type="Animation" id="Animation_a7wbb"]
+resource_name = "p2StrafeUp"
+
+[sub_resource type="Animation" id="Animation_p3rk1"]
+resource_name = "p2StrafeDown"
+
+[sub_resource type="Animation" id="Animation_jjwq3"]
+resource_name = "p2SwordSwingLeft"
+
+[sub_resource type="Animation" id="Animation_qi5mb"]
+resource_name = "p2SwordSwingRight"
+
+[sub_resource type="Animation" id="Animation_okhcx"]
+resource_name = "p2SwordSwingUp"
+
+[sub_resource type="Animation" id="Animation_4tv7m"]
+resource_name = "p2SwordSwingDown"
+
+[sub_resource type="Animation" id="Animation_bu8nt"]
+resource_name = "p2SwordResetLeft"
+
+[sub_resource type="Animation" id="Animation_yrq4p"]
+resource_name = "p2SwordResetRight"
+
+[sub_resource type="Animation" id="Animation_gvwol"]
+resource_name = "p2SwordResetUp"
+
+[sub_resource type="Animation" id="Animation_ai2sa"]
+resource_name = "p2SwordResetDown"
+
+[sub_resource type="Animation" id="Animation_fnbjo"]
+resource_name = "p2BackSwingLeft"
+
+[sub_resource type="Animation" id="Animation_iuioq"]
+resource_name = "p2BackSwingRight"
+
+[sub_resource type="Animation" id="Animation_5pyhg"]
+resource_name = "p2BackSwingUp"
+
+[sub_resource type="Animation" id="Animation_vipgb"]
+resource_name = "p2BackSwingDown"
+
+[sub_resource type="Animation" id="Animation_716cx"]
+resource_name = "p2HitLeft"
+
+[sub_resource type="Animation" id="Animation_gg7kh"]
+resource_name = "p2HitRight"
+
+[sub_resource type="Animation" id="Animation_r8sd5"]
+resource_name = "p2HitUp"
+
+[sub_resource type="Animation" id="Animation_pvsl4"]
+resource_name = "p2HitDown"
+
+[sub_resource type="Animation" id="Animation_jk81n"]
+resource_name = "p2StaggerLeft"
+
+[sub_resource type="Animation" id="Animation_vuc2t"]
+resource_name = "p2StaggerRight"
+
+[sub_resource type="Animation" id="Animation_tvst1"]
+resource_name = "p2StaggerUp"
+
+[sub_resource type="Animation" id="Animation_vnehm"]
+resource_name = "p2StaggerDown"
+
+[sub_resource type="Animation" id="Animation_17xnh"]
+resource_name = "p2ThrustLeft"
+
+[sub_resource type="Animation" id="Animation_yn27k"]
+resource_name = "p2ThrustRight"
+
+[sub_resource type="Animation" id="Animation_a5rme"]
+resource_name = "p2ThrustUp"
+
+[sub_resource type="Animation" id="Animation_lkchs"]
+resource_name = "p2ThrustDown"
+
+[sub_resource type="Animation" id="Animation_mj54p"]
+resource_name = "p2SlamLeft"
+
+[sub_resource type="Animation" id="Animation_4r0u2"]
+resource_name = "p2SlamRight"
+
+[sub_resource type="Animation" id="Animation_g1lcl"]
+resource_name = "p2SlamUp"
+
+[sub_resource type="Animation" id="Animation_aw01y"]
+resource_name = "p2SlamDown"
+
+[sub_resource type="Animation" id="Animation_qelf3"]
+resource_name = "armorCrackRight"
+
+[sub_resource type="Animation" id="Animation_668fc"]
+resource_name = "armorCrackLeft"
+
+[sub_resource type="Animation" id="Animation_hyxwi"]
+resource_name = "engageDown"
+
+[sub_resource type="Animation" id="Animation_r5vb0"]
+resource_name = "engageLeft"
+
+[sub_resource type="Animation" id="Animation_wlvin"]
+resource_name = "engageRight"
+
+[sub_resource type="Animation" id="Animation_qebsx"]
+resource_name = "engageUp"
+
+[sub_resource type="Animation" id="Animation_n37o0"]
+resource_name = "armorCrackUp"
+
+[sub_resource type="Animation" id="Animation_20m72"]
+resource_name = "armorCrackDown"
+
+[sub_resource type="Animation" id="Animation_a4ng6"]
+resource_name = "deathLeft"
+
+[sub_resource type="Animation" id="Animation_6p4ir"]
+resource_name = "deathRight"
+
+[sub_resource type="Animation" id="Animation_brhfr"]
+resource_name = "deathUp"
+
+[sub_resource type="Animation" id="Animation_einus"]
+resource_name = "deathDown"
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_xj47n"]
+_data = {
+"armorCrackDown": SubResource("Animation_20m72"),
+"armorCrackLeft": SubResource("Animation_668fc"),
+"armorCrackRight": SubResource("Animation_qelf3"),
+"armorCrackUp": SubResource("Animation_n37o0"),
+"deathDown": SubResource("Animation_einus"),
+"deathLeft": SubResource("Animation_a4ng6"),
+"deathRight": SubResource("Animation_6p4ir"),
+"deathUp": SubResource("Animation_brhfr"),
+"engageDown": SubResource("Animation_hyxwi"),
+"engageLeft": SubResource("Animation_r5vb0"),
+"engageRight": SubResource("Animation_wlvin"),
+"engageUp": SubResource("Animation_qebsx"),
+"p1BackSwingDown": SubResource("Animation_aq7ay"),
+"p1BackSwingLeft": SubResource("Animation_r5w8a"),
+"p1BackSwingRight": SubResource("Animation_ngvh5"),
+"p1BackSwingUp": SubResource("Animation_6271g"),
+"p1HitDown": SubResource("Animation_c03mf"),
+"p1HitLeft": SubResource("Animation_cgdyp"),
+"p1HitRight": SubResource("Animation_onpkl"),
+"p1HitUp": SubResource("Animation_farhc"),
+"p1IdleDown": SubResource("Animation_iffok"),
+"p1IdleLeft": SubResource("Animation_be1go"),
+"p1IdleRight": SubResource("Animation_cl2m3"),
+"p1IdleUp": SubResource("Animation_stqsk"),
+"p1ShieldDown": SubResource("Animation_df6gt"),
+"p1ShieldLeft": SubResource("Animation_8u1ly"),
+"p1ShieldRight": SubResource("Animation_jkene"),
+"p1ShieldUp": SubResource("Animation_xab10"),
+"p1StaggerDown": SubResource("Animation_nkyjv"),
+"p1StaggerLeft": SubResource("Animation_rwo0w"),
+"p1StaggerRight": SubResource("Animation_1yh8o"),
+"p1StaggerUp": SubResource("Animation_0b8it"),
+"p1StrafeDown": SubResource("Animation_yb01e"),
+"p1StrafeLeft": SubResource("Animation_2tjc0"),
+"p1StrafeRight": SubResource("Animation_ksfuy"),
+"p1StrafeUp": SubResource("Animation_fapi0"),
+"p1SwordResetDown": SubResource("Animation_q15vl"),
+"p1SwordResetLeft": SubResource("Animation_ww8hv"),
+"p1SwordResetRight": SubResource("Animation_ec424"),
+"p1SwordResetUp": SubResource("Animation_p1r1p"),
+"p1SwordSwingDown": SubResource("Animation_dclhf"),
+"p1SwordSwingLeft": SubResource("Animation_cnsnr"),
+"p1SwordSwingRight": SubResource("Animation_2lil1"),
+"p1SwordSwingUp": SubResource("Animation_ymfwt"),
+"p1ThrustDown": SubResource("Animation_vjjqp"),
+"p1ThrustRight": SubResource("Animation_5mvwi"),
+"p1ThrustUp": SubResource("Animation_eo6jl"),
+"p1ThurstLeft": SubResource("Animation_f70uf"),
+"p1WalkDown": SubResource("Animation_11v77"),
+"p1WalkLeft": SubResource("Animation_842d1"),
+"p1WalkRight": SubResource("Animation_br62f"),
+"p1WalkUp": SubResource("Animation_5tbp6"),
+"p2BackSwingDown": SubResource("Animation_vipgb"),
+"p2BackSwingLeft": SubResource("Animation_fnbjo"),
+"p2BackSwingRight": SubResource("Animation_iuioq"),
+"p2BackSwingUp": SubResource("Animation_5pyhg"),
+"p2HitDown": SubResource("Animation_pvsl4"),
+"p2HitLeft": SubResource("Animation_716cx"),
+"p2HitRight": SubResource("Animation_gg7kh"),
+"p2HitUp": SubResource("Animation_r8sd5"),
+"p2IdleDown": SubResource("Animation_spw86"),
+"p2IdleLeft": SubResource("Animation_omocp"),
+"p2IdleRight": SubResource("Animation_6a3g3"),
+"p2IdleUp": SubResource("Animation_1ecao"),
+"p2SlamDown": SubResource("Animation_aw01y"),
+"p2SlamLeft": SubResource("Animation_mj54p"),
+"p2SlamRight": SubResource("Animation_4r0u2"),
+"p2SlamUp": SubResource("Animation_g1lcl"),
+"p2StaggerDown": SubResource("Animation_vnehm"),
+"p2StaggerLeft": SubResource("Animation_jk81n"),
+"p2StaggerRight": SubResource("Animation_vuc2t"),
+"p2StaggerUp": SubResource("Animation_tvst1"),
+"p2StrafeDown": SubResource("Animation_p3rk1"),
+"p2StrafeLeft": SubResource("Animation_8xq6l"),
+"p2StrafeRight": SubResource("Animation_x0pnr"),
+"p2StrafeUp": SubResource("Animation_a7wbb"),
+"p2SwordResetDown": SubResource("Animation_ai2sa"),
+"p2SwordResetLeft": SubResource("Animation_bu8nt"),
+"p2SwordResetRight": SubResource("Animation_yrq4p"),
+"p2SwordResetUp": SubResource("Animation_gvwol"),
+"p2SwordSwingDown": SubResource("Animation_4tv7m"),
+"p2SwordSwingLeft": SubResource("Animation_jjwq3"),
+"p2SwordSwingRight": SubResource("Animation_qi5mb"),
+"p2SwordSwingUp": SubResource("Animation_okhcx"),
+"p2ThrustDown": SubResource("Animation_lkchs"),
+"p2ThrustLeft": SubResource("Animation_17xnh"),
+"p2ThrustRight": SubResource("Animation_yn27k"),
+"p2ThrustUp": SubResource("Animation_a5rme"),
+"p2WalkDown": SubResource("Animation_lov7y"),
+"p2WalkLeft": SubResource("Animation_ssl3s"),
+"p2WalkRight": SubResource("Animation_h25i5"),
+"p2WalkUp": SubResource("Animation_4q0yh")
+}
+
 [node name="CharacterBody2D" type="CharacterBody2D"]
 script = ExtResource("1_b8bwd")
 Title = "StandIn"
@@ -20,11 +392,12 @@ Health = 20
 Damage = 10
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+scale = Vector2(5.68, 2.32)
 shape = SubResource("RectangleShape2D_e8u0d")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="knightSprite" type="Sprite2D" parent="."]
 position = Vector2(0, -9.53674e-07)
-scale = Vector2(0.833333, 2.05)
+scale = Vector2(4.75334, 4.81)
 texture = ExtResource("1_76tie")
 hframes = 5
 vframes = 2
@@ -33,6 +406,7 @@ frame = 9
 [node name="collisionDamage" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="collisionDamage"]
+scale = Vector2(5.64, 2.4)
 shape = SubResource("RectangleShape2D_i34cp")
 
 [node name="hurtbox" type="Area2D" parent="."]
@@ -41,4 +415,10 @@ collision_mask = 2
 script = ExtResource("3_k3y62")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="hurtbox"]
+scale = Vector2(5.6, 2.44)
 shape = SubResource("RectangleShape2D_qpe3a")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_xj47n")
+}
