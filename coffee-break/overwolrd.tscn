@@ -13,8 +13,6 @@ scale = Vector2(14.1149, 14.1149)
 texture = ExtResource("1_g84yk")
 
 [node name="player" parent="." instance=ExtResource("6_daers")]
-speed = 305
-rollSpeed = 320.0
 
 [node name="CharacterBody2D2" parent="." instance=ExtResource("3_kj3ho")]
 position = Vector2(-120, 14)

@@ -11,7 +11,7 @@ using System.Xml;
 
 public partial class Player : CharacterBody2D
 {
-	[Export] public int speed = 50;
+	[Export] public int speed = 305;
 	
 	[Export] public int maxHealth = 100;
 	private int currentHealth;
@@ -34,22 +34,49 @@ public partial class Player : CharacterBody2D
 	private Node2D lockedTarget = null;
 	[Export] public float lockRadius = 200f;
 
-	[Export] public float rollSpeed = 220f;
-	[Export] public float rollDuration = 0.25f;
+	[Export] public float lockMoveMultiplier = 0.65f;
 
-	[Export] public float sideRollSpeed = 180f;
-	[Export] public float backstepSpeed = 140f;
+	[Export] public float rollSpeed = 520f;
+	[Export] public float rollDuration = 0.30f;
 
-	[Export] public float backflipSpeed = 250f;
+	[Export] public float sideRollSpeed = 320f;
+
+	[Export] public float rollRecoveryDuration = 0.18f;
+	
+	[Export] public float backflipSpeed = 500f;
 	[Export] public float backflipDuration = 0.3f;
+
+	[Export] public float backflipRecoveryDuration = 0.22f;
 
 	private bool isRolling = false;
 	private Vector2 rollVelocity = Vector2.Zero;
 	private float rollTimer = 0f;
+	private Vector2 rollDirection = Vector2.Zero;
+	private float rollElapsed = 0f;
+
+	private bool isRecoveringFromRoll = false;
+	private float rollRecoveryTimer = 0f;
 
 	private bool isBackflipping = false;
 	private Vector2 backflipVelocity = Vector2.Zero;
 	private float backflipTimer = 0f;
+	private float backflipElapsed = 0f;
+
+	private bool isRecoveringFromBackflip = false;
+	private float backflipRecoveryTimer = 0f;
+
+	private bool wasForwardRoll = false;
+
+	private bool canLungeAttack = false;
+	[Export] public float lungeWindow = 0.25f;
+	private float lungeTimer = 0f;
+
+	[Export] public float lungeSpeed = 650f;
+	[Export] public float lungeDuration = 0.18f;
+
+	private bool isLunging = false;
+	private float lungeTimeLeft = 0f;
+	private Vector2 lungeDirection = Vector2.Zero;
 
 	[Export] public float knockbackForce = 500f;
 	[Export] public float knockbackFriction = 1200f;
@@ -64,7 +91,8 @@ public partial class Player : CharacterBody2D
 		SwordSwingLeft, SwordSwingRight, SwordSwingUp, SwordSwingDown,
 		HitLeft, HitRight, HitUp, HitDown,
 		RollLeft, RollRight, RollUp, RollDown,
-		BackflipLeft, BackflipRight, BackflipUp, BackflipDown
+		BackflipLeft, BackflipRight, BackflipUp, BackflipDown,
+		LungeLeft, LungeRight, LungeUp, LungeDown
 	}
 
 	private enum FacingDirection{Left, Right, Up, Down}
@@ -72,6 +100,8 @@ public partial class Player : CharacterBody2D
 
 	public override void _Ready()
 	{
+		AddToGroup("players");
+
 		playerSprite = GetNode<Sprite2D>("playerSprite");
 		animationPlayer = GetNode<AnimationPlayer>("AnimationPlayer");
 	
@@ -104,24 +134,145 @@ public partial class Player : CharacterBody2D
 
 		Vector2 finalVelocity = currentVelocity;
 		
-		if (isBackflipping)
+		if (isLunging)
 		{
-			finalVelocity = backflipVelocity;
+			lungeTimeLeft -= (float)delta;
+			Vector2 motion = lungeDirection * lungeSpeed * (float)delta;
+
+			KinematicCollision2D collision = MoveAndCollide(motion);
+    		if (collision != null)
+			{
+				isLunging = false;
+				animationLocked = false;
+				finalVelocity = Vector2.Zero;
+
+				Node2D enemy = collision.GetCollider() as Node2D;
+				if (enemy != null && enemy.IsInGroup("enemies"))
+				{
+					GD.Print("Bumped into enemy during lunge!");
+					swordHitBox.Monitoring = true;
+				}
+			}
+			else
+			{
+				finalVelocity = lungeDirection * lungeSpeed;
+				swordHitBox.Monitoring = true; 
+			}
+
+			if (lungeTimeLeft <= 0)
+			{
+				isLunging = false;
+				animationLocked = false;
+				finalVelocity = Vector2.Zero;
+				swordHitBox.Monitoring = false;
+			}
+			
+		}
+		else if (isBackflipping)
+		{
+			backflipElapsed += (float)delta;
 			backflipTimer -= (float)delta;
+
+			float t = backflipElapsed / backflipDuration;
+
+			float speedFactor =
+				t < 0.10f ? 1.30f :
+				t < 0.25f ? 1.00f :
+				t < 0.55f ? 0.55f :
+				0.25f;
+
+			Vector2 motion = backflipVelocity * backflipSpeed * speedFactor * (float)delta;
+
+			KinematicCollision2D collision = MoveAndCollide(motion);
+			if (collision != null)
+			{
+				isBackflipping = false;
+				isRecoveringFromBackflip = true;
+				backflipRecoveryTimer = backflipRecoveryDuration;
+				finalVelocity = Vector2.Zero;
+			}
+			else
+			{
+				finalVelocity = backflipVelocity * backflipSpeed * speedFactor;
+			}
+
 			if (backflipTimer <= 0)
 			{
 				isBackflipping = false;
-				animationLocked = false;
+				isRecoveringFromBackflip = true;
+				backflipRecoveryTimer = backflipRecoveryDuration;
+				finalVelocity = Vector2.Zero;
 			}
 		}
 		else if (isRolling)
 		{
-			finalVelocity = rollVelocity;
+			rollElapsed += (float)delta;
 			rollTimer -= (float)delta;
+
+			float t = rollElapsed / rollDuration;
+			float speedFactor =
+				t < 0.12f ? 1.35f :
+				t < 0.30f ? 1.10f :
+				t < 0.60f ? 0.70f :
+				0.35f;
+
+			Vector2 motion = rollDirection * rollSpeed * speedFactor * (float)delta;
+
+			KinematicCollision2D collision = MoveAndCollide(motion);
+			if (collision != null)
+			{
+				isRolling = false;
+				isRecoveringFromRoll = true;
+				rollRecoveryTimer = rollRecoveryDuration;
+
+				Node2D enemy = collision.GetCollider() as Node2D;
+				if (enemy != null && enemy.IsInGroup("enemies"))
+				{
+					GD.Print("Bumped into enemy during roll!");
+					swordHitBox.Monitoring = true;
+				}
+
+				finalVelocity = Vector2.Zero;
+			}
+			else
+			{
+				finalVelocity = rollDirection * rollSpeed * speedFactor;
+			}
 
 			if (rollTimer <= 0)
 			{
 				isRolling = false;
+				isRecoveringFromRoll = true;
+				rollRecoveryTimer = rollRecoveryDuration;
+				finalVelocity = Vector2.Zero;
+
+				if (wasForwardRoll)
+				{
+					canLungeAttack = true;
+					lungeTimer = lungeWindow;
+					GD.Print("Lunge window opened");
+				}
+			}
+		}
+		else if (isRecoveringFromRoll)
+		{
+			finalVelocity = Vector2.Zero;
+			rollRecoveryTimer -= (float)delta;
+
+			if (rollRecoveryTimer <= 0)
+			{
+				isRecoveringFromRoll = false;
+				animationLocked = false;
+			}
+		}
+		else if (isRecoveringFromBackflip)
+		{
+			finalVelocity = Vector2.Zero;
+			backflipRecoveryTimer -= (float)delta;
+
+			if (backflipRecoveryTimer <= 0)
+			{
+				isRecoveringFromBackflip = false;
 				animationLocked = false;
 			}
 		}
@@ -169,23 +320,34 @@ public partial class Player : CharacterBody2D
 				animationPlayer.Seek(0, true);
 		}
 
+		if (canLungeAttack)
+		{
+			lungeTimer -= (float)delta;
+			if (lungeTimer <= 0)
+				canLungeAttack = false;
+		}
+
 		lastStrafeSide = currentSide;
 
-		GlobalPosition = GlobalPosition.Round();
+		if (!isRolling && !isBackflipping && !isKnockedBack)
+			GlobalPosition = GlobalPosition.Round();
 	}
 
 	
 	private void handleInput()
 	{
+		if (isRolling || isBackflipping)
+    		return;
+
 		if(!animationLocked)
 		{
 			if (lockedTarget != null)
 			{
-				currentVelocity = GetStrafeVelocity();
+				currentVelocity = GetStrafeVelocity() * lockMoveMultiplier;
 			}
 			else
 			{
-			currentVelocity = Input.GetVector("Left", "Right", "Up", "Down") * speed;
+				currentVelocity = Input.GetVector("Left", "Right", "Up", "Down") * speed;
 			}
 
 			if(currentVelocity.Length() < 0.5f)
@@ -201,7 +363,11 @@ public partial class Player : CharacterBody2D
 			ToggleTargetLock();
 		}
 
-		if (Input.IsActionJustPressed("Action") && !isRolling && !isKnockedBack)
+		if (Input.IsActionJustPressed("Action") && 
+			!isRolling && 
+			!isRecoveringFromRoll &&
+			!isRecoveringFromBackflip &&
+			!isKnockedBack)
 		{
 			StartDodge();
 		}
@@ -276,6 +442,12 @@ public partial class Player : CharacterBody2D
 	{
 		if(Input.IsActionJustPressed("Sword"))
 		{
+			if (canLungeAttack && !isLunging)
+			{
+				StartLungeAttack();
+				return;
+			}
+			
 			GD.Print("Sword");
 			
 			switch(facingDirection)
@@ -304,64 +476,71 @@ public partial class Player : CharacterBody2D
 
 	private void StartDodge()
 	{
-
-		/*
-		change dodge to match holding input buttuns instead
-		backfliping when 'up'
-		front roll when 'down'
-		side roll when strafing
-
-		side roll animation, roll up = rollUp, roll down = rollDown
-		roll right = rollRight, roll left = rollLeft
-
-		sideroll animations might be to much to do, can add later
-		*/
-		
 		Vector2 input = Input.GetVector("Left", "Right", "Up", "Down");
+
+		Vector2 moveDir = currentVelocity.Length() > 10f
+			? currentVelocity.Normalized()
+			: input.Normalized();
 
 		if (lockedTarget != null && IsInstanceValid(lockedTarget))
 		{
 			Vector2 toTarget = (lockedTarget.GlobalPosition - GlobalPosition).Normalized();
-			Vector2 tangent = new Vector2(-toTarget.Y, toTarget.X);
 
-			float forwardDot = input.Normalized().Dot(toTarget);
-			float sideDot = input.Normalized().Dot(tangent);
-
-			if (forwardDot < -0.3f || input == Vector2.Zero)
+			if (moveDir == Vector2.Zero)
 			{
 				StartBackflip(-toTarget);
+				return;
 			}
-			else if (Mathf.Abs(sideDot) > Mathf.Abs(forwardDot))
-			{
-				Vector2 sideDir = Mathf.Sign(sideDot) * tangent;
-				rollVelocity = sideDir * sideRollSpeed;
-				rollTimer = rollDuration;
-				isRolling = true;
-				animationLocked = true;
-				PlayRollAnimation(sideDir);
-			}
-			else
-			{
-				rollVelocity = toTarget * rollSpeed;
-				rollTimer = rollDuration;
-				isRolling = true;
-				animationLocked = true;
-				PlayRollAnimation(toTarget);
-			}
-		}
-		else
-		{
-			if (input == Vector2.Zero)
-				input = FacingToVector();
 
-			rollVelocity = input.Normalized() * rollSpeed;
-			rollTimer = rollDuration;
-			isRolling = true;
-			animationLocked = true;
-			PlayRollAnimation(input);
+			float towardDot = moveDir.Dot(toTarget);
+
+			if (towardDot < -0.6f)
+			{
+				StartBackflip(-toTarget);
+				return;
+			}
+
+			if (towardDot > 0.6f)
+			{
+				StartRoll(moveDir, rollSpeed);
+				return;
+			}
+
+			StartRoll(moveDir, sideRollSpeed);
+			return;
 		}
+
+		if (moveDir == Vector2.Zero)
+			moveDir = FacingToVector();
+
+		StartRoll(moveDir, rollSpeed);
 	}
 
+	private void StartRoll(Vector2 dir, float speedValue)
+	{
+		isRolling = true;
+		animationLocked = true;
+
+		rollDirection = dir.Normalized();
+    	rollTimer = rollDuration;
+    	rollElapsed = 0f;
+
+    	rollVelocity = rollDirection * speedValue;
+
+		wasForwardRoll = false;
+
+		if (lockedTarget != null && IsInstanceValid(lockedTarget))
+		{
+			Vector2 toTarget = (lockedTarget.GlobalPosition - GlobalPosition).Normalized();
+			if (rollDirection.Dot(toTarget) > 0.6f)
+			{
+				wasForwardRoll = true;
+				GD.Print("Forward roll detected");
+			}
+		}
+
+		PlayRollAnimation(dir);
+	}
 
 	private Vector2 FacingToVector()
 	{
@@ -379,35 +558,90 @@ public partial class Player : CharacterBody2D
 		if (Math.Abs(dir.X) > Math.Abs(dir.Y))
 		{
 			if (dir.X > 0)
+			{
+				GD.Print("roll right");
 				PlayAnimation((int)AnimState.RollRight, true);
+			}
 			else
+			{
+				GD.Print("roll left");
 				PlayAnimation((int)AnimState.RollLeft, true);
+			}
 		}
 		else
 		{
 			if (dir.Y > 0)
+			{
+				GD.Print("roll down");
 				PlayAnimation((int)AnimState.RollDown, true);
+			}
 			else
+			{
+				GD.Print("roll up");
 				PlayAnimation((int)AnimState.RollUp, true);
+			}
 		}
 	}
 
 	private void StartBackflip(Vector2 direction)
 	{
+		GD.Print("backflip");
+
 		isBackflipping = true;
 		backflipTimer = backflipDuration;
-		animationLocked = true;
-		backflipVelocity = direction.Normalized() * backflipSpeed;
+		backflipElapsed = 0f;
 
-		if (Math.Abs(direction.X) > Math.Abs(direction.Y))
+		animationLocked = true;
+		backflipVelocity = direction.Normalized(); 
+
+		PlayBackflipAnimation(backflipVelocity);
+	}
+
+	private void PlayBackflipAnimation(Vector2 dir)
+	{
+		if (Math.Abs(dir.X) > Math.Abs(dir.Y))
 		{
-			if (direction.X > 0) PlayAnimation((int)AnimState.BackflipRight, true);
+			if (dir.X > 0) PlayAnimation((int)AnimState.BackflipRight, true);
 			else PlayAnimation((int)AnimState.BackflipLeft, true);
 		}
 		else
 		{
-			if (direction.Y > 0) PlayAnimation((int)AnimState.BackflipDown, true);
+			if (dir.Y > 0) PlayAnimation((int)AnimState.BackflipDown, true);
 			else PlayAnimation((int)AnimState.BackflipUp, true);
+		}
+	}
+
+	private void StartLungeAttack()
+	{
+		GD.Print("Lunge attack");
+
+		canLungeAttack = false;
+		isLunging = true;
+		animationLocked = true;
+
+		lungeTimeLeft = lungeDuration;
+
+		if (lockedTarget != null && IsInstanceValid(lockedTarget))
+			lungeDirection = (lockedTarget.GlobalPosition - GlobalPosition).Normalized();
+		else
+			lungeDirection = FacingToVector();
+
+		PlayLungeAnimation();
+	}
+
+	private void PlayLungeAnimation()
+	{
+		Vector2 d = lungeDirection;
+
+		if (Math.Abs(d.X) > Math.Abs(d.Y))
+		{
+			if (d.X > 0) PlayAnimation((int)AnimState.LungeRight, true);
+			else PlayAnimation((int)AnimState.LungeLeft, true);
+		}
+		else
+		{
+			if (d.Y > 0) PlayAnimation((int)AnimState.LungeDown, true);
+			else PlayAnimation((int)AnimState.LungeUp, true);
 		}
 	}
 
@@ -441,6 +675,10 @@ public partial class Player : CharacterBody2D
 			AnimState.BackflipRight => "backflipRight",
 			AnimState.BackflipUp => "backflipUp",
 			AnimState.BackflipDown => "backflipDown",
+			AnimState.LungeLeft => "lungeLeft",
+			AnimState.LungeRight => "lungeRight",
+			AnimState.LungeUp => "lungeUp",
+			AnimState.LungeDown => "lungeDown",
 			_ => "idleDown"
 		};
 
@@ -452,6 +690,9 @@ public partial class Player : CharacterBody2D
 			if(animName.StartsWith("walk"))
 			{
 				float scale = reverse ? -1f : 1f;
+
+				if (lockedTarget != null)
+        			scale *= 0.9f;
 
 				if(lockedTarget != null && IsStrafingSideways())
 					scale *= 0.85f;
