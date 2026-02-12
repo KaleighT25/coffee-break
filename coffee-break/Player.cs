@@ -840,7 +840,7 @@ public partial class Player : CharacterBody2D
 
 		Vector2 tangent = new Vector2(-toTarget.Y, toTarget.X);
 
-		float forward = Input.GetActionStrength("Down") - Input.GetActionStrength("Up");
+		float forward = Input.GetActionStrength("Up") - Input.GetActionStrength("Down");
 		float strafe = Input.GetActionStrength("Right") - Input.GetActionStrength("Left");
 
 		Vector2 move =
