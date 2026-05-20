@@ -1,0 +1,30 @@
+[gd_scene load_steps=6 format=3 uid="uid://cv0k4punj61xg"]
+
+[ext_resource type="Texture2D" uid="uid://d3i7l6c7euxc7" path="res://art/PH.png" id="1_fga2i"]
+[ext_resource type="Script" path="res://Camera.cs" id="4_bm81r"]
+[ext_resource type="Script" path="res://WorldScenes/WorldScripts/ToTownScene.cs" id="4_pp5x8"]
+[ext_resource type="PackedScene" uid="uid://bhri7u116hdt7" path="res://player.tscn" id="6_daers"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_e72vc"]
+size = Vector2(45, 275)
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Ph" type="Sprite2D" parent="."]
+position = Vector2(-29, -136)
+scale = Vector2(2.024, 2.024)
+texture = ExtResource("1_fga2i")
+
+[node name="player" parent="." instance=ExtResource("6_daers")]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position_smoothing_speed = 10.0
+script = ExtResource("4_bm81r")
+playerPath = NodePath("../player")
+
+[node name="toTownScene" type="Area2D" parent="."]
+script = ExtResource("4_pp5x8")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="toTownScene"]
+position = Vector2(524.5, 12.5)
+shape = SubResource("RectangleShape2D_e72vc")

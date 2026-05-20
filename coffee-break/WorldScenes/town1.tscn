@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://bpk83oajxfqqc"]
+
+[ext_resource type="Texture2D" uid="uid://b2xvh4cvwjjof" path="res://art/minimap-export.png" id="1_gjwvr"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Minimap-export" type="Sprite2D" parent="."]
+position = Vector2(534, 319)
+texture = ExtResource("1_gjwvr")
