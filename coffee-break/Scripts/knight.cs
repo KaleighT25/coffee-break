@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class EnemyStandIn : EnemyTemp
+public partial class knight : EnemyTemp
 {
     [Export] public float speed = 150f;
     [Export] public float detectionRadius = 300f;
