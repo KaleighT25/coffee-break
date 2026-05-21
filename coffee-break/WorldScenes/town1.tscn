@@ -1,9 +1,29 @@
-[gd_scene load_steps=2 format=3 uid="uid://bpk83oajxfqqc"]
+[gd_scene load_steps=4 format=3 uid="uid://bpk83oajxfqqc"]
 
 [ext_resource type="Texture2D" uid="uid://b2xvh4cvwjjof" path="res://art/minimap-export.png" id="1_gjwvr"]
+[ext_resource type="Script" path="res://Scripts/ToNewScene.cs" id="2_1sop0"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7461u"]
+size = Vector2(20, 370)
 
 [node name="Node2D" type="Node2D"]
 
 [node name="Minimap-export" type="Sprite2D" parent="."]
-position = Vector2(534, 319)
+position = Vector2(1052, -81)
+scale = Vector2(2.016, 2.016)
 texture = ExtResource("1_gjwvr")
+
+[node name="SpawnPoints" type="Node2D" parent="."]
+
+[node name="FromHomeScene" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(281, 93)
+
+[node name="ToHomeScene" type="Area2D" parent="."]
+position = Vector2(173, 94)
+script = ExtResource("2_1sop0")
+TargetScenePath = "res://WorldScenes/playerHome.tscn"
+TargetSpawnPoint = "FromTownScene"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ToHomeScene"]
+position = Vector2(1, 1)
+shape = SubResource("RectangleShape2D_7461u")

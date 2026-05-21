@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://ce2qkocjigef0"]
+
+[ext_resource type="Script" path="res://Scripts/Main.cs" id="1_6su2h"]
+[ext_resource type="PackedScene" uid="uid://bhri7u116hdt7" path="res://player.tscn" id="1_kf6j3"]
+[ext_resource type="Script" path="res://Scripts/Camera.cs" id="3_gti0a"]
+
+[node name="Node2D" type="Node2D" node_paths=PackedStringArray("World", "Player")]
+script = ExtResource("1_6su2h")
+World = NodePath("World")
+Player = NodePath("Player")
+
+[node name="World" type="Node2D" parent="."]
+
+[node name="Player" parent="." instance=ExtResource("1_kf6j3")]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+script = ExtResource("3_gti0a")
+playerPath = NodePath("../Player")

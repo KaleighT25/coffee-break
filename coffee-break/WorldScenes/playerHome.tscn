@@ -1,9 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://cv0k4punj61xg"]
+[gd_scene load_steps=4 format=3 uid="uid://cv0k4punj61xg"]
 
 [ext_resource type="Texture2D" uid="uid://d3i7l6c7euxc7" path="res://art/PH.png" id="1_fga2i"]
-[ext_resource type="Script" path="res://Camera.cs" id="4_bm81r"]
-[ext_resource type="Script" path="res://WorldScenes/WorldScripts/ToTownScene.cs" id="4_pp5x8"]
-[ext_resource type="PackedScene" uid="uid://bhri7u116hdt7" path="res://player.tscn" id="6_daers"]
+[ext_resource type="Script" path="res://Scripts/ToNewScene.cs" id="4_pp5x8"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_e72vc"]
 size = Vector2(45, 275)
@@ -15,16 +13,19 @@ position = Vector2(-29, -136)
 scale = Vector2(2.024, 2.024)
 texture = ExtResource("1_fga2i")
 
-[node name="player" parent="." instance=ExtResource("6_daers")]
+[node name="SpawnPoints" type="Node2D" parent="."]
 
-[node name="Camera2D" type="Camera2D" parent="."]
-position_smoothing_speed = 10.0
-script = ExtResource("4_bm81r")
-playerPath = NodePath("../player")
+[node name="StartSpawn" type="Marker2D" parent="SpawnPoints"]
+
+[node name="FromTownScene" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(424, 0)
 
 [node name="toTownScene" type="Area2D" parent="."]
+position = Vector2(485, -1)
 script = ExtResource("4_pp5x8")
+TargetScenePath = "res://WorldScenes/town1.tscn"
+TargetSpawnPoint = "FromHomeScene"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="toTownScene"]
-position = Vector2(524.5, 12.5)
+position = Vector2(3, 4)
 shape = SubResource("RectangleShape2D_e72vc")

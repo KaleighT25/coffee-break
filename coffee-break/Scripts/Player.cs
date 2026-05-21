@@ -113,6 +113,15 @@ public partial class Player : CharacterBody2D
 
 		swordHitBox = GetNode<Hitbox>("swordHitBox");
 		swordHitBox.OwnerNode = this;
+
+		 if (GameManager.NextSpawnPoint != "")
+		{
+			Marker2D spawn = GetTree()
+				.CurrentScene
+				.GetNode<Marker2D>("SpawnPoints/" + GameManager.NextSpawnPoint);
+
+			GlobalPosition = spawn.GlobalPosition;
+		}
 	}
 	public override void _PhysicsProcess(double delta)
 	{

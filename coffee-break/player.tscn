@@ -1,9 +1,9 @@
 [gd_scene load_steps=37 format=3 uid="uid://bhri7u116hdt7"]
 
-[ext_resource type="Script" path="res://Player.cs" id="1_av1gv"]
+[ext_resource type="Script" path="res://Scripts/Player.cs" id="1_av1gv"]
 [ext_resource type="Texture2D" uid="uid://dbi76pa2yd4wk" path="res://art/standins.png" id="2_armkb"]
 [ext_resource type="Texture2D" uid="uid://c2d3vnddhq00l" path="res://art/ui1.png" id="3_a1cbf"]
-[ext_resource type="Script" path="res://Hitbox.cs" id="4_d3aio"]
+[ext_resource type="Script" path="res://Scripts/Hitbox.cs" id="4_d3aio"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_vgm32"]
 size = Vector2(121.905, 124.773)
