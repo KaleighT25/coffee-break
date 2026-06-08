@@ -3,5 +3,5 @@ using System;
 
 public partial class GameManager : Node
 {
-    public static string NextSpawnPoint = "";
+	public static string NextSpawnPoint = "";
 }
