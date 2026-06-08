@@ -1737,11 +1737,13 @@ vframes = 2
 frame = 2
 
 [node name="Ui1" type="Sprite2D" parent="."]
+visible = false
 position = Vector2(1, -4)
 scale = Vector2(0.360755, 0.360755)
 texture = ExtResource("3_a1cbf")
 
 [node name="ProgressBar" type="ProgressBar" parent="."]
+visible = false
 offset_left = -480.0
 offset_top = -317.0
 offset_right = -187.0
@@ -1761,3 +1763,10 @@ Damage = 10
 [node name="swordCollision" type="CollisionShape2D" parent="swordHitBox"]
 position = Vector2(0, 39)
 shape = SubResource("RectangleShape2D_c61wl")
+
+[node name="Label" type="Label" parent="."]
+offset_left = -28.0
+offset_top = -58.0
+offset_right = 30.0
+offset_bottom = -35.0
+text = "PLAYER"
