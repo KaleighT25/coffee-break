@@ -15,6 +15,7 @@ public partial class Player : CharacterBody2D
 	
 	[Export] public int maxHealth = 100;
 	private int currentHealth;
+	private bool isDead = false;
 
 	[Export] public int maxMagic = 100;
 	private int currentMagic;
@@ -140,7 +141,7 @@ public partial class Player : CharacterBody2D
 			Vector2 motion = lungeDirection * lungeSpeed * (float)delta;
 
 			KinematicCollision2D collision = MoveAndCollide(motion);
-    		if (collision != null)
+			if (collision != null)
 			{
 				isLunging = false;
 				animationLocked = false;
@@ -337,7 +338,7 @@ public partial class Player : CharacterBody2D
 	private void handleInput()
 	{
 		if (isRolling || isBackflipping)
-    		return;
+			return;
 
 		if(!animationLocked)
 		{
@@ -522,10 +523,10 @@ public partial class Player : CharacterBody2D
 		animationLocked = true;
 
 		rollDirection = dir.Normalized();
-    	rollTimer = rollDuration;
-    	rollElapsed = 0f;
+		rollTimer = rollDuration;
+		rollElapsed = 0f;
 
-    	rollVelocity = rollDirection * speedValue;
+		rollVelocity = rollDirection * speedValue;
 
 		wasForwardRoll = false;
 
@@ -692,7 +693,7 @@ public partial class Player : CharacterBody2D
 				float scale = reverse ? -1f : 1f;
 
 				if (lockedTarget != null)
-        			scale *= 0.9f;
+					scale *= 0.9f;
 
 				if(lockedTarget != null && IsStrafingSideways())
 					scale *= 0.85f;
@@ -729,18 +730,19 @@ public partial class Player : CharacterBody2D
 	}
 
 	public void TakeDamage(int amount, Vector2 enemyPosition)
-    {
-    	currentHealth -= amount;
+	{
+		currentHealth -= amount;
 
 		ApplyKnockback(enemyPosition);
 
-        GD.Print("Player health: " + currentHealth);
+		GD.Print("Player health: " + currentHealth);
 
-        if (currentHealth <= 0)
-        {
-            GD.Print("Player dead");
-        }
-    }
+		if (currentHealth <= 0)
+		{
+			GD.Print("Player dead");
+			isDead = true;
+		}
+	}
 
 	public void ApplyKnockback(Vector2 fromPosition)
 	{
@@ -848,5 +850,9 @@ public partial class Player : CharacterBody2D
 			(tangent * strafe);
 
 		return move.Normalized() * speed;
+	}
+	
+	public int getCurrentHealth() {
+		return currentHealth;
 	}
 }
