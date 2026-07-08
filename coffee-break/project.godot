@@ -11,8 +11,11 @@ config_version=5
 [application]
 
 config/name="coffee break"
-run/main_scene="res://overwolrd.tscn"
 config/features=PackedStringArray("4.3", "C#", "Forward Plus")
+
+[autoload]
+
+GameManager="*res://Scripts/GameManager.cs"
 
 [dotnet]
 
@@ -77,5 +80,4 @@ Set2={
 
 [rendering]
 
-textures/canvas_textures/default_texture_filter=0
 2d/snap/snap_2d_transforms_to_pixel=true

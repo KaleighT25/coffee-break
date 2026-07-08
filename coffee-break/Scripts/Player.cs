@@ -9,13 +9,29 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks.Dataflow;
 using System.Xml;
 
-public partial class Player : CharacterBody2D
+public partial class Player : CharacterBody2D, IDamageable
 {
+	// Read-only combat state for enemy AI to react to.
+	public bool IsRolling => isRolling;
+	public bool IsBackflipping => isBackflipping;
+	public bool IsLunging => isLunging;
+	public bool IsDodgeRecovering => isRecoveringFromRoll || isRecoveringFromBackflip;
+	public bool IsKnockedBack => isKnockedBack;
+	public bool IsAttacking => isSwinging || isLunging;
+	public Node2D LockedTarget => lockedTarget;
+	private bool isSwinging = false;
+
+	// For HealthScript.cs — kept as a plain method (not a property) to match
+	// the exact call it already makes: player.getCurrentHealth()
+	public int getCurrentHealth()
+	{
+		return currentHealth;
+	}
+
 	[Export] public int speed = 305;
 	
 	[Export] public int maxHealth = 100;
 	private int currentHealth;
-	private bool isDead = false;
 
 	[Export] public int maxMagic = 100;
 	private int currentMagic;
@@ -31,6 +47,10 @@ public partial class Player : CharacterBody2D
 
 	private float lastStrafeSide = 0;
 	private Hitbox swordHitBox;
+	
+	[ExportGroup("Combat")]
+	[Export] public int swordDamage = 20;
+	[Export] public int lungeDamage = 35;
 
 	private Node2D lockedTarget = null;
 	[Export] public float lockRadius = 200f;
@@ -114,6 +134,15 @@ public partial class Player : CharacterBody2D
 
 		swordHitBox = GetNode<Hitbox>("swordHitBox");
 		swordHitBox.OwnerNode = this;
+
+		 if (GameManager.NextSpawnPoint != "")
+		{
+			Marker2D spawn = GetTree()
+				.CurrentScene
+				.GetNode<Marker2D>("SpawnPoints/" + GameManager.NextSpawnPoint);
+
+			GlobalPosition = spawn.GlobalPosition;
+		}
 	}
 	public override void _PhysicsProcess(double delta)
 	{
@@ -141,17 +170,17 @@ public partial class Player : CharacterBody2D
 			Vector2 motion = lungeDirection * lungeSpeed * (float)delta;
 
 			KinematicCollision2D collision = MoveAndCollide(motion);
-			if (collision != null)
+    		if (collision != null)
 			{
 				isLunging = false;
 				animationLocked = false;
 				finalVelocity = Vector2.Zero;
+				swordHitBox.Monitoring = false;
 
 				Node2D enemy = collision.GetCollider() as Node2D;
 				if (enemy != null && enemy.IsInGroup("enemies"))
 				{
 					GD.Print("Bumped into enemy during lunge!");
-					swordHitBox.Monitoring = true;
 				}
 			}
 			else
@@ -225,13 +254,6 @@ public partial class Player : CharacterBody2D
 				isRolling = false;
 				isRecoveringFromRoll = true;
 				rollRecoveryTimer = rollRecoveryDuration;
-
-				Node2D enemy = collision.GetCollider() as Node2D;
-				if (enemy != null && enemy.IsInGroup("enemies"))
-				{
-					GD.Print("Bumped into enemy during roll!");
-					swordHitBox.Monitoring = true;
-				}
 
 				finalVelocity = Vector2.Zero;
 			}
@@ -338,7 +360,12 @@ public partial class Player : CharacterBody2D
 	private void handleInput()
 	{
 		if (isRolling || isBackflipping)
+		{
+			if (Input.IsActionJustPressed("Sword"))
+				GD.Print($"Sword pressed but handleInput returned early — isRolling: {isRolling}, isBackflipping: {isBackflipping}");
+
 			return;
+		}
 
 		if(!animationLocked)
 		{
@@ -443,6 +470,8 @@ public partial class Player : CharacterBody2D
 	{
 		if(Input.IsActionJustPressed("Sword"))
 		{
+			GD.Print($"Sword pressed — canLungeAttack: {canLungeAttack}, isLunging: {isLunging}, lungeTimer: {lungeTimer}, isRecoveringFromRoll: {isRecoveringFromRoll}, animationLocked: {animationLocked}");
+
 			if (canLungeAttack && !isLunging)
 			{
 				StartLungeAttack();
@@ -450,7 +479,8 @@ public partial class Player : CharacterBody2D
 			}
 			
 			GD.Print("Sword");
-			
+			isSwinging = true;
+
 			switch(facingDirection)
 			{
 				case FacingDirection.Left:
@@ -467,6 +497,15 @@ public partial class Player : CharacterBody2D
 
 	public void SwordHitboxOn()
 	{
+		swordHitBox.Damage = swordDamage;
+		swordHitBox.Unblockable = false;
+		swordHitBox.Monitoring = true;
+	}
+
+	public void LungeHitboxOn()
+	{
+		swordHitBox.Damage = lungeDamage;
+		swordHitBox.Unblockable = true;
 		swordHitBox.Monitoring = true;
 	}
 
@@ -523,17 +562,20 @@ public partial class Player : CharacterBody2D
 		animationLocked = true;
 
 		rollDirection = dir.Normalized();
-		rollTimer = rollDuration;
-		rollElapsed = 0f;
+    	rollTimer = rollDuration;
+    	rollElapsed = 0f;
 
-		rollVelocity = rollDirection * speedValue;
+    	rollVelocity = rollDirection * speedValue;
 
 		wasForwardRoll = false;
 
 		if (lockedTarget != null && IsInstanceValid(lockedTarget))
 		{
 			Vector2 toTarget = (lockedTarget.GlobalPosition - GlobalPosition).Normalized();
-			if (rollDirection.Dot(toTarget) > 0.6f)
+			float dot = rollDirection.Dot(toTarget);
+			GD.Print($"Roll dot product: {dot}");
+
+			if (dot > 0.6f)
 			{
 				wasForwardRoll = true;
 				GD.Print("Forward roll detected");
@@ -622,6 +664,9 @@ public partial class Player : CharacterBody2D
 
 		lungeTimeLeft = lungeDuration;
 
+		swordHitBox.Damage = lungeDamage;
+		swordHitBox.Unblockable = true;
+
 		if (lockedTarget != null && IsInstanceValid(lockedTarget))
 			lungeDirection = (lockedTarget.GlobalPosition - GlobalPosition).Normalized();
 		else
@@ -693,7 +738,7 @@ public partial class Player : CharacterBody2D
 				float scale = reverse ? -1f : 1f;
 
 				if (lockedTarget != null)
-					scale *= 0.9f;
+        			scale *= 0.9f;
 
 				if(lockedTarget != null && IsStrafingSideways())
 					scale *= 0.85f;
@@ -726,22 +771,28 @@ public partial class Player : CharacterBody2D
 		if(animName.ToString().StartsWith("swordSwing") || animName.ToString().StartsWith("hit"))
 		{
 			animationLocked = false;
+			isSwinging = false;
 		}
 	}
 
+	public void TakeDamage(AttackData attack)
+    {
+    	currentHealth -= attack.Damage;
+
+		ApplyKnockback(attack.Origin);
+
+        GD.Print("Player health: " + currentHealth);
+
+        if (currentHealth <= 0)
+        {
+            GD.Print("Player dead");
+        }
+    }
+
+	// Kept for any contact-damage callers that don't build an AttackData themselves.
 	public void TakeDamage(int amount, Vector2 enemyPosition)
 	{
-		currentHealth -= amount;
-
-		ApplyKnockback(enemyPosition);
-
-		GD.Print("Player health: " + currentHealth);
-
-		if (currentHealth <= 0)
-		{
-			GD.Print("Player dead");
-			isDead = true;
-		}
+		TakeDamage(new AttackData { Damage = amount, Origin = enemyPosition });
 	}
 
 	public void ApplyKnockback(Vector2 fromPosition)
@@ -850,9 +901,5 @@ public partial class Player : CharacterBody2D
 			(tangent * strafe);
 
 		return move.Normalized() * speed;
-	}
-	
-	public int getCurrentHealth() {
-		return currentHealth;
 	}
 }

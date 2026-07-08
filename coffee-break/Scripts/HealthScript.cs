@@ -17,32 +17,38 @@ public partial class HealthScript : Node
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		player = GetParent<Player>();
 		healthBarSprite = (Sprite2D)GetNode("CurrentHealth");
-
-		maxHealth = player.maxHealth;
-		currHealth = player.getCurrentHealth();
-		checkHealth = currHealth;
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		if (player == null)
+		{
+			player = GetTree().GetFirstNodeInGroup("players") as Player;
+			if (player == null)
+				return; // Player scene not loaded yet — try again next frame
+
+			maxHealth = player.maxHealth;
+			currHealth = player.getCurrentHealth();
+			checkHealth = currHealth;
+			updateHealth();
+		}
+
 		currHealth = player.getCurrentHealth();
-		//if (checkHealth != currHealth) {
-		updateHealth();
-		GD.Print("Updating health bar");
-		//}
-		//checkHealth = currHealth;
+
+		if (checkHealth != currHealth)
+		{
+			updateHealth();
+			checkHealth = currHealth;
+		}
 	}
 	
 	//update the bar
 	private void updateHealth()
 	{
-		if(currHealth < 0) {
+		if (currHealth < 0)
 			currHealth = 0;
-			return;
-		}
 
 		float percent = getBarScale(maxHealth, currHealth);
 
@@ -70,9 +76,3 @@ public partial class HealthScript : Node
 		return ((float)curr/(float)max);
 	}
 }
-
-
-
-
-
- 
