@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://dysqbw632hn2p"]
+[gd_scene load_steps=5 format=3 uid="uid://dysqbw632hn2p"]
 
 [ext_resource type="Texture2D" uid="uid://c2d3vnddhq00l" path="res://art/ui1.png" id="1_j2w3h"]
+[ext_resource type="Texture2D" uid="uid://bi7f0hjchaiiw" path="res://art/UI/healthBar.png" id="2_885mv"]
+[ext_resource type="Script" path="res://Scripts/HealthScript.cs" id="3_dxj3e"]
+[ext_resource type="Texture2D" uid="uid://xolkibh8k6hk" path="res://art/UI/CurrentHealth.png" id="4_7d8ui"]
 
 [node name="UI" type="CanvasLayer"]
 
@@ -8,3 +11,18 @@
 position = Vector2(583, 332)
 scale = Vector2(0.344262, 0.344262)
 texture = ExtResource("1_j2w3h")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="HealthBar" type="Sprite2D" parent="Control"]
+position = Vector2(239.5, 47.5)
+scale = Vector2(7.03125, 2.96875)
+texture = ExtResource("2_885mv")
+script = ExtResource("3_dxj3e")
+
+[node name="CurrentHealth" type="Sprite2D" parent="Control/HealthBar"]
+texture = ExtResource("4_7d8ui")

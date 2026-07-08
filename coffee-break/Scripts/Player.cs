@@ -21,6 +21,13 @@ public partial class Player : CharacterBody2D, IDamageable
 	public Node2D LockedTarget => lockedTarget;
 	private bool isSwinging = false;
 
+	// For HealthScript.cs — kept as a plain method (not a property) to match
+	// the exact call it already makes: player.getCurrentHealth()
+	public int getCurrentHealth()
+	{
+		return currentHealth;
+	}
+
 	[Export] public int speed = 305;
 	
 	[Export] public int maxHealth = 100;
@@ -163,7 +170,7 @@ public partial class Player : CharacterBody2D, IDamageable
 			Vector2 motion = lungeDirection * lungeSpeed * (float)delta;
 
 			KinematicCollision2D collision = MoveAndCollide(motion);
-    		if (collision != null)
+			if (collision != null)
 			{
 				isLunging = false;
 				animationLocked = false;
@@ -555,10 +562,10 @@ public partial class Player : CharacterBody2D, IDamageable
 		animationLocked = true;
 
 		rollDirection = dir.Normalized();
-    	rollTimer = rollDuration;
-    	rollElapsed = 0f;
+		rollTimer = rollDuration;
+		rollElapsed = 0f;
 
-    	rollVelocity = rollDirection * speedValue;
+		rollVelocity = rollDirection * speedValue;
 
 		wasForwardRoll = false;
 
@@ -661,7 +668,6 @@ public partial class Player : CharacterBody2D, IDamageable
 		swordHitBox.Unblockable = true;
 
 		if (lockedTarget != null && IsInstanceValid(lockedTarget))
-
 			lungeDirection = (lockedTarget.GlobalPosition - GlobalPosition).Normalized();
 		else
 			lungeDirection = FacingToVector();
@@ -732,7 +738,7 @@ public partial class Player : CharacterBody2D, IDamageable
 				float scale = reverse ? -1f : 1f;
 
 				if (lockedTarget != null)
-        			scale *= 0.9f;
+					scale *= 0.9f;
 
 				if(lockedTarget != null && IsStrafingSideways())
 					scale *= 0.85f;
@@ -770,18 +776,18 @@ public partial class Player : CharacterBody2D, IDamageable
 	}
 
 	public void TakeDamage(AttackData attack)
-    {
-    	currentHealth -= attack.Damage;
+	{
+		currentHealth -= attack.Damage;
 
 		ApplyKnockback(attack.Origin);
 
-        GD.Print("Player health: " + currentHealth);
+		GD.Print("Player health: " + currentHealth);
 
-        if (currentHealth <= 0)
-        {
-            GD.Print("Player dead");
-        }
-    }
+		if (currentHealth <= 0)
+		{
+			GD.Print("Player dead");
+		}
+	}
 
 	// Kept for any contact-damage callers that don't build an AttackData themselves.
 	public void TakeDamage(int amount, Vector2 enemyPosition)
