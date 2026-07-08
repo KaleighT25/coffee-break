@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://cv0k4punj61xg"]
+[gd_scene load_steps=5 format=3 uid="uid://cv0k4punj61xg"]
 
 [ext_resource type="Texture2D" uid="uid://d3i7l6c7euxc7" path="res://art/PH.png" id="1_fga2i"]
+[ext_resource type="PackedScene" uid="uid://yiggahjmymiw" path="res://Enemies/enemyScenes/heavyKnight.tscn" id="3_kr0id"]
 [ext_resource type="Script" path="res://Scripts/ToNewScene.cs" id="4_pp5x8"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_e72vc"]
@@ -29,3 +30,6 @@ TargetSpawnPoint = "FromHomeScene"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="toTownScene"]
 position = Vector2(3, 4)
 shape = SubResource("RectangleShape2D_e72vc")
+
+[node name="heavyKnight" parent="." instance=ExtResource("3_kr0id")]
+position = Vector2(-199, 289)

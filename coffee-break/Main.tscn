@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://dysqbw632hn2p" path="res://UI.tscn" id="4_3nv8e"]
 
 [node name="Node2D" type="Node2D" node_paths=PackedStringArray("World", "Player")]
+position = Vector2(0, 2)
 script = ExtResource("1_6su2h")
 World = NodePath("World")
 Player = NodePath("Player")
