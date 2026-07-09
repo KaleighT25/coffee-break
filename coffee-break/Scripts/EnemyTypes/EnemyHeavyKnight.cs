@@ -10,7 +10,8 @@ public partial class EnemyHeavyKnight : EnemyBase
         StrafeCWLeft, StrafeCWRight, StrafeCWUp, StrafeCWDown,
         StrafeCCWLeft, StrafeCCWRight, StrafeCCWUp, StrafeCCWDown,
         StepBackLeft, StepBackRight, StepBackUp, StepBackDown,
-        ThrustLeft, ThrustRight, ThrustUp, ThrustDown
+        ThrustLeft, ThrustRight, ThrustUp, ThrustDown,
+        SlashLeft, SlashRight, SlashUp, SlashDown
     }
 
     private enum AttackType { Slash, Thrust }
@@ -60,7 +61,6 @@ public partial class EnemyHeavyKnight : EnemyBase
     private int orbitDirection = 1; // +1 or -1
 
     private Sprite2D knightSprite;
-    private Sprite2D swordSprite;
     private Hitbox swordHitbox;
     private float attackElapsed = 0f;
     private float counterElapsed = 0f;
@@ -70,8 +70,7 @@ public partial class EnemyHeavyKnight : EnemyBase
         base._Ready();
 
         knightSprite = GetNode<Sprite2D>("knightSprite");
-        swordSprite = GetNode<Sprite2D>("swordSprite");
-        
+
         animationPlayer = GetNode<AnimationPlayer>("AnimationPlayer");
 
         swordHitbox = GetNode<Hitbox>("SwordHitbox");
@@ -87,7 +86,7 @@ public partial class EnemyHeavyKnight : EnemyBase
 
     private void UpdateMovementAnimation()
     {
-        if (state == EnemyState.Recover)
+        if (state == EnemyState.Recover || state == EnemyState.Parried)
         {
             if (player != null)
                 FacePlayer();
@@ -193,6 +192,20 @@ public partial class EnemyHeavyKnight : EnemyBase
         }
     }
 
+    private void PlaySlashForFacing()
+    {
+        if (player != null)
+            FacePlayer();
+
+        switch (facingDirection)
+        {
+            case FacingDirection.Left: PlayAnim(AnimState.SlashLeft); break;
+            case FacingDirection.Right: PlayAnim(AnimState.SlashRight); break;
+            case FacingDirection.Up: PlayAnim(AnimState.SlashUp); break;
+            case FacingDirection.Down: PlayAnim(AnimState.SlashDown); break;
+        }
+    }
+
     private void PlayThrustForFacing()
     {
         if (player != null)
@@ -248,6 +261,10 @@ public partial class EnemyHeavyKnight : EnemyBase
             AnimState.ThrustRight => "thrustRight",
             AnimState.ThrustUp => "thrustUp",
             AnimState.ThrustDown => "thrustDown",
+            AnimState.SlashLeft => "slashLeft",
+            AnimState.SlashRight => "slashRight",
+            AnimState.SlashUp => "slashUp",
+            AnimState.SlashDown => "slashDown",
             _ => "idleDown"
         };
 
@@ -346,10 +363,9 @@ public partial class EnemyHeavyKnight : EnemyBase
 
     private AttackType ChooseAttack()
     {
-        // Only one attack for now while we test it in isolation — once more
-        // attacks exist, replace this with a random pick (or weighted pick)
-        // among them, e.g.: return GD.Randf() < 0.5f ? AttackType.Slash : AttackType.Thrust;
-        return AttackType.Thrust;
+        // Once more attacks exist, this is the place to switch to a
+        // weighted pick instead of a flat coin flip.
+        return GD.Randf() < 0.5f ? AttackType.Slash : AttackType.Thrust;
     }
 
     protected override void TickTelegraph(float dt)
@@ -454,7 +470,7 @@ public partial class EnemyHeavyKnight : EnemyBase
                 }
                 else
                 {
-                    knightSprite.Modulate = new Color(1f, 0.5f, 0.5f); // red = about to swing
+                    PlaySlashForFacing(); // one continuous step-in-and-swing motion
                 }
                 break;
 
@@ -468,11 +484,13 @@ public partial class EnemyHeavyKnight : EnemyBase
                     stateTimer = ThrustAttackDuration;
                     swordHitbox.Damage = ThrustDamage;
                     swordHitbox.Knockback = ThrustKnockback;
+                    swordHitbox.Parryable = true;
                 }
                 else
                 {
                     swordHitbox.Damage = SwingDamage;
                     swordHitbox.Knockback = SwingKnockback;
+                    swordHitbox.Parryable = false; // heavy swing must be dodged, not parried
                 }
                 break;
 
@@ -481,11 +499,16 @@ public partial class EnemyHeavyKnight : EnemyBase
                 stateTimer = BlockHoldDuration;
                 break;
 
+            case EnemyState.Parried:
+                knightSprite.Modulate = new Color(1f, 0.6f, 0.2f); // orange = stunned
+                break;
+
             case EnemyState.CounterAttack:
                 counterElapsed = 0f;
                 swordHitbox.Damage = CounterDamage;
                 swordHitbox.Knockback = CounterKnockback;
                 swordHitbox.Unblockable = false;
+                swordHitbox.Parryable = false;
                 swordHitbox.Monitoring = false;
                 knightSprite.Modulate = new Color(1f, 1f, 0.4f); // yellow = riposte
                 stateTimer = CounterTelegraph + CounterActiveWindow + 0.1f;
@@ -501,6 +524,13 @@ public partial class EnemyHeavyKnight : EnemyBase
                 knightSprite.Modulate = Colors.Gray;
                 break;
         }
+    }
+
+    public override void OnParried(Player parrier)
+    {
+        base.OnParried(parrier);
+        FlashColor(Colors.White, new Color(1f, 0.6f, 0.2f));
+        GD.Print($"{Title} was parried and staggers back!");
     }
 
     protected override void OnAttackBlocked(AttackData attack)

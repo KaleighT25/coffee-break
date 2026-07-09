@@ -19,6 +19,8 @@ public partial class Hurtbox : Area2D
                 Damage = hitbox.Damage,
                 Knockback = hitbox.Knockback,
                 Unblockable = hitbox.Unblockable,
+                Parryable = hitbox.Parryable,
+                Source = hitbox.OwnerNode,
                 Origin = hitbox.OwnerNode != null
                     ? hitbox.OwnerNode.GlobalPosition
                     : ((Node2D)hitbox).GlobalPosition

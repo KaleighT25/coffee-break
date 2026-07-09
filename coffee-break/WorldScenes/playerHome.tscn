@@ -1,18 +1,20 @@
-[gd_scene load_steps=5 format=3 uid="uid://cv0k4punj61xg"]
+[gd_scene load_steps=6 format=3 uid="uid://cv0k4punj61xg"]
 
-[ext_resource type="Texture2D" uid="uid://d3i7l6c7euxc7" path="res://art/PH.png" id="1_fga2i"]
+[ext_resource type="Texture2D" uid="uid://cpxjbneg6ivpj" path="res://art/bhaileHouse1.png" id="1_ekj2v"]
 [ext_resource type="PackedScene" uid="uid://yiggahjmymiw" path="res://Enemies/enemyScenes/heavyKnight.tscn" id="3_kr0id"]
 [ext_resource type="Script" path="res://Scripts/ToNewScene.cs" id="4_pp5x8"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_e72vc"]
 size = Vector2(45, 275)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_stf76"]
+size = Vector2(231, 20)
+
 [node name="Node2D" type="Node2D"]
 
-[node name="Ph" type="Sprite2D" parent="."]
-position = Vector2(-29, -136)
-scale = Vector2(2.024, 2.024)
-texture = ExtResource("1_fga2i")
+[node name="BhaileHouse1" type="Sprite2D" parent="."]
+position = Vector2(-37, -181)
+texture = ExtResource("1_ekj2v")
 
 [node name="SpawnPoints" type="Node2D" parent="."]
 
@@ -20,6 +22,9 @@ texture = ExtResource("1_fga2i")
 
 [node name="FromTownScene" type="Marker2D" parent="SpawnPoints"]
 position = Vector2(424, 0)
+
+[node name="FromAmphOP" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(291, -185)
 
 [node name="toTownScene" type="Area2D" parent="."]
 position = Vector2(485, -1)
@@ -30,6 +35,30 @@ TargetSpawnPoint = "FromHomeScene"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="toTownScene"]
 position = Vector2(3, 4)
 shape = SubResource("RectangleShape2D_e72vc")
+
+[node name="ToTown" type="Label" parent="toTownScene"]
+offset_left = -25.0
+offset_top = -9.0
+offset_right = 41.0
+offset_bottom = 25.0
+text = "To Town"
+
+[node name="toAmphOP" type="Area2D" parent="."]
+position = Vector2(281, -253)
+script = ExtResource("4_pp5x8")
+TargetScenePath = "res://WorldScenes/amphOP.tscn"
+TargetSpawnPoint = "FromHomeScene"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="toAmphOP"]
+position = Vector2(2, 0)
+shape = SubResource("RectangleShape2D_stf76")
+
+[node name="Label" type="Label" parent="toAmphOP"]
+offset_left = -47.0
+offset_top = -11.0
+offset_right = 49.0
+offset_bottom = 12.0
+text = "To Amph OP"
 
 [node name="heavyKnight" parent="." instance=ExtResource("3_kr0id")]
 position = Vector2(-199, 289)

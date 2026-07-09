@@ -11,6 +11,7 @@ public enum EnemyState
     Block,
     CounterAttack,
     Hitstun,
+    Parried,
     Dead
 }
 
@@ -32,6 +33,10 @@ public partial class EnemyBase : CharacterBody2D, IDamageable
     [Export] public float AttackDuration = 0.25f;
     [Export] public float RecoverDuration = 0.4f;
     [Export] public float HitstunDuration = 0.2f;
+
+    [ExportGroup("Parry")]
+    [Export] public float ParriedStunDuration = 1.5f; // how long it's stunned and open after a parry
+    [Export] public float ParryKnockback = 400f;
 
     [ExportGroup("Contact Damage")]
     [Export] public bool DealsContactDamage = true;
@@ -67,8 +72,6 @@ public partial class EnemyBase : CharacterBody2D, IDamageable
         if (player == null)
         {
             player = GetTree().GetFirstNodeInGroup("players") as Player;
-            if (player != null)
-                GD.Print($"{Name}: player reference found");
         }
     }
 
@@ -83,7 +86,6 @@ public partial class EnemyBase : CharacterBody2D, IDamageable
 
         if (knockbackVelocity.Length() > 5f)
         {
-            GD.Print($"{Name}: in knockback (len={knockbackVelocity.Length():F1}), state={state}, skipping state logic this frame");
             Velocity = knockbackVelocity;
             knockbackVelocity = knockbackVelocity.MoveToward(Vector2.Zero, 900f * dt);
             MoveAndSlide();
@@ -102,6 +104,7 @@ public partial class EnemyBase : CharacterBody2D, IDamageable
             case EnemyState.Block: TickBlock(dt); break;
             case EnemyState.CounterAttack: TickCounter(dt); break;
             case EnemyState.Hitstun: TickHitstun(dt); break;
+            case EnemyState.Parried: TickParried(dt); break;
         }
 
         MoveAndSlide();
@@ -113,21 +116,9 @@ public partial class EnemyBase : CharacterBody2D, IDamageable
     // shared plumbing (health, knockback, contact damage, death).
     // ---------------------------------------------------------------
 
-    private float debugPrintTimer = 0f;
-
     protected virtual void TickIdle(float dt)
     {
         Velocity = Vector2.Zero;
-
-        debugPrintTimer -= dt;
-        if (debugPrintTimer <= 0f)
-        {
-            debugPrintTimer = 1f;
-            if (player == null)
-                GD.Print($"{Name}: idle, player reference is NULL");
-            else
-                GD.Print($"{Name}: idle, distance to player = {GlobalPosition.DistanceTo(player.GlobalPosition):F1}, AggroRadius = {AggroRadius}");
-        }
 
         if (player != null && GlobalPosition.DistanceTo(player.GlobalPosition) <= AggroRadius)
             ChangeState(EnemyState.Chase);
@@ -186,6 +177,18 @@ public partial class EnemyBase : CharacterBody2D, IDamageable
             ChangeState(EnemyState.Chase);
     }
 
+    // Override to play a dedicated stunned/reeling animation. Base just
+    // stands still for ParriedStunDuration — the knockback shove itself is
+    // already handled by the shared knockbackVelocity system in
+    // _PhysicsProcess before this ever runs.
+    protected virtual void TickParried(float dt)
+    {
+        Velocity = Vector2.Zero;
+
+        if (stateTimer <= 0f)
+            ChangeState(EnemyState.Chase);
+    }
+
     // Override to raise a guard, play a block animation, etc. Base does
     // nothing but return to Chase when the state timer runs out — a
     // subclass that never enters Block never needs to touch this.
@@ -219,10 +222,10 @@ public partial class EnemyBase : CharacterBody2D, IDamageable
             EnemyState.Attack => AttackDuration,
             EnemyState.Recover => RecoverDuration,
             EnemyState.Hitstun => HitstunDuration,
+            EnemyState.Parried => ParriedStunDuration,
             _ => 0f
         };
         OnStateChanged(next);
-        GD.Print($"{Name}: state -> {next}, stateTimer = {stateTimer:F2}");
     }
 
     // Override to trigger animations/VFX per state without touching the
@@ -236,8 +239,6 @@ public partial class EnemyBase : CharacterBody2D, IDamageable
     public virtual void TakeDamage(AttackData attack)
     {
         if (state == EnemyState.Dead) return;
-
-        GD.Print($"{Name}: TakeDamage — currentState={state}, damage={attack.Damage}, unblockable={attack.Unblockable}");
 
         if (!attack.Unblockable && (state == EnemyState.Block || state == EnemyState.CounterAttack))
         {
@@ -261,6 +262,21 @@ public partial class EnemyBase : CharacterBody2D, IDamageable
         knockbackVelocity = dir * attack.Knockback;
 
         ChangeState(EnemyState.Hitstun);
+    }
+
+    // Called by the player when they successfully parry this enemy's attack.
+    // Base handles the generic stun + knockback-away-from-player; override
+    // to add a flash, sound, or custom reaction on top.
+    public virtual void OnParried(Player parrier)
+    {
+        if (state == EnemyState.Dead) return;
+
+        GD.Print($"{Name}: PARRIED!");
+
+        Vector2 dir = (GlobalPosition - parrier.GlobalPosition).Normalized();
+        knockbackVelocity = dir * ParryKnockback;
+
+        ChangeState(EnemyState.Parried);
     }
 
     // Override to flash/sound-cue a hit that landed but was absorbed while
@@ -294,7 +310,8 @@ public partial class EnemyBase : CharacterBody2D, IDamageable
             {
                 Damage = Damage,
                 Knockback = ContactKnockback,
-                Origin = GlobalPosition
+                Origin = GlobalPosition,
+                Source = this
             });
         }
     }

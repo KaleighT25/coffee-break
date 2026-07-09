@@ -7,4 +7,6 @@ public class AttackData
     public float Knockback;
     public Vector2 Origin;
     public bool Unblockable;
+    public bool Parryable;
+    public Node2D Source;
 }

@@ -1469,7 +1469,7 @@ tracks/3/keys = {
 "method": &"SwordHitboxOn"
 }, {
 "args": [],
-"method": &"SwordAnimations"
+"method": &"SwordHitboxOff"
 }]
 }
 

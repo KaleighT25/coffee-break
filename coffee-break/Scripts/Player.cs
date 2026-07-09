@@ -21,6 +21,10 @@ public partial class Player : CharacterBody2D, IDamageable
 	public Node2D LockedTarget => lockedTarget;
 	private bool isSwinging = false;
 
+	[Export] public float ParryWindowDuration = 0.18f; // how early in a swing a parry can land
+	private bool isParryWindowActive = false;
+	private float parryWindowTimer = 0f;
+
 	// For HealthScript.cs — kept as a plain method (not a property) to match
 	// the exact call it already makes: player.getCurrentHealth()
 	public int getCurrentHealth()
@@ -350,6 +354,13 @@ public partial class Player : CharacterBody2D, IDamageable
 				canLungeAttack = false;
 		}
 
+		if (isParryWindowActive)
+		{
+			parryWindowTimer -= (float)delta;
+			if (parryWindowTimer <= 0)
+				isParryWindowActive = false;
+		}
+
 		lastStrafeSide = currentSide;
 
 		if (!isRolling && !isBackflipping && !isKnockedBack)
@@ -361,9 +372,6 @@ public partial class Player : CharacterBody2D, IDamageable
 	{
 		if (isRolling || isBackflipping)
 		{
-			if (Input.IsActionJustPressed("Sword"))
-				GD.Print($"Sword pressed but handleInput returned early — isRolling: {isRolling}, isBackflipping: {isBackflipping}");
-
 			return;
 		}
 
@@ -470,8 +478,6 @@ public partial class Player : CharacterBody2D, IDamageable
 	{
 		if(Input.IsActionJustPressed("Sword"))
 		{
-			GD.Print($"Sword pressed — canLungeAttack: {canLungeAttack}, isLunging: {isLunging}, lungeTimer: {lungeTimer}, isRecoveringFromRoll: {isRecoveringFromRoll}, animationLocked: {animationLocked}");
-
 			if (canLungeAttack && !isLunging)
 			{
 				StartLungeAttack();
@@ -480,6 +486,8 @@ public partial class Player : CharacterBody2D, IDamageable
 			
 			GD.Print("Sword");
 			isSwinging = true;
+			isParryWindowActive = true;
+			parryWindowTimer = ParryWindowDuration;
 
 			switch(facingDirection)
 			{
@@ -573,7 +581,6 @@ public partial class Player : CharacterBody2D, IDamageable
 		{
 			Vector2 toTarget = (lockedTarget.GlobalPosition - GlobalPosition).Normalized();
 			float dot = rollDirection.Dot(toTarget);
-			GD.Print($"Roll dot product: {dot}");
 
 			if (dot > 0.6f)
 			{
@@ -728,10 +735,21 @@ public partial class Player : CharacterBody2D, IDamageable
 			_ => "idleDown"
 		};
 
+		// Never let a movement/idle animation interrupt an in-progress sword
+		// swing — the roll-recovery timer can clear animationLocked
+		// independently of the swing, but the swing still needs to finish
+		// naturally so isSwinging clears via AnimationFinished. Without this,
+		// an interrupted swing leaves isSwinging (and IsAttacking) stuck true
+		// forever, which enemy AI relies on to react to player attacks.
+		if (isSwinging && !animName.StartsWith("swordSwing") && !animName.StartsWith("hit"))
+			return;
+
 		if (!animationLocked || lockAnim)
 		{
 			if (animationPlayer.CurrentAnimation != animName)
+			{
 				animationPlayer.Play(animName);
+			}
 
 			if(animName.StartsWith("walk"))
 			{
@@ -772,11 +790,33 @@ public partial class Player : CharacterBody2D, IDamageable
 		{
 			animationLocked = false;
 			isSwinging = false;
+
+			// Safety net: guarantee the hitbox is off once the swing's
+			// animation naturally ends, regardless of whether that specific
+			// clip's own Call Method Track for SwordHitboxOff() actually
+			// fired. A missing/mistimed call track in any swing animation
+			// would otherwise leave the hitbox stuck active indefinitely.
+			if (swordHitBox.Monitoring)
+			{
+				GD.Print($"WARNING: {animName} finished with hitbox still on — forcing it off. Check that clip's Call Method Track for SwordHitboxOff().");
+				swordHitBox.Monitoring = false;
+			}
 		}
 	}
 
 	public void TakeDamage(AttackData attack)
     {
+        if (attack.Parryable && isParryWindowActive)
+        {
+            GD.Print("Parried!");
+            isParryWindowActive = false;
+
+            if (attack.Source is EnemyBase enemy)
+                enemy.OnParried(this);
+
+            return;
+        }
+
     	currentHealth -= attack.Damage;
 
 		ApplyKnockback(attack.Origin);

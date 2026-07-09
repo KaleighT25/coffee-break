@@ -1,20 +1,25 @@
-[gd_scene load_steps=5 format=3 uid="uid://bpk83oajxfqqc"]
+[gd_scene load_steps=6 format=3 uid="uid://bpk83oajxfqqc"]
 
 [ext_resource type="Texture2D" uid="uid://b2xvh4cvwjjof" path="res://art/minimap-export.png" id="1_gjwvr"]
 [ext_resource type="Script" path="res://Scripts/ToNewScene.cs" id="2_1sop0"]
+[ext_resource type="Texture2D" uid="uid://cpxjbneg6ivpj" path="res://art/bhaileHouse1.png" id="2_5r8ju"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7461u"]
 size = Vector2(20, 370)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ck671"]
-size = Vector2(24, 33)
+size = Vector2(41, 64.25)
 
 [node name="Node2D" type="Node2D"]
 
 [node name="Minimap-export" type="Sprite2D" parent="."]
-position = Vector2(1052, -81)
-scale = Vector2(2.016, 2.016)
+position = Vector2(2206.26, 51.4999)
+scale = Vector2(4.65733, 4.65733)
 texture = ExtResource("1_gjwvr")
+
+[node name="BhaileHouse1" type="Sprite2D" parent="."]
+position = Vector2(647, -227)
+texture = ExtResource("2_5r8ju")
 
 [node name="SpawnPoints" type="Node2D" parent="."]
 
@@ -22,7 +27,7 @@ texture = ExtResource("1_gjwvr")
 position = Vector2(281, 93)
 
 [node name="FromH1" type="Marker2D" parent="SpawnPoints"]
-position = Vector2(380, -34)
+position = Vector2(649, 30)
 
 [node name="ToHomeScene" type="Area2D" parent="."]
 position = Vector2(173, 94)
@@ -40,5 +45,5 @@ TargetScenePath = "res://WorldScenes/townBuildingsScenes/House1.tscn"
 TargetSpawnPoint = "FromTownScene"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ToH1"]
-position = Vector2(378, -119.5)
+position = Vector2(647.5, -47.875)
 shape = SubResource("RectangleShape2D_ck671")
